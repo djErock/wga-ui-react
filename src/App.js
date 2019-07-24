@@ -1,26 +1,36 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useReducer } from 'react';
+import API from './api/comingSoon';
+import AppContext from './state/AppContext';
+import { Reducer } from './state/reducers/Main';
+import Main from './components/main/Main';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const App = () => {
+    const initialState = {
+        currentPage: 'Web Graphics Atlanta',
+        content: 'Loading...',
+    };
+
+    const [ state, dispatch ] = useReducer(Reducer, initialState);
+
+    useEffect(() => {
+        const fetchData = async() => {
+            try {
+                const response = await API.loadPageData();
+
+                dispatch({ type: 'SUCCESS', payload: response });
+            } catch (error) {
+                dispatch({ type: 'FAILURE' });
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    return (
+        <AppContext.Provider value={ state }>
+            <Main />
+        </AppContext.Provider>
+    );
+};
 
 export default App;
